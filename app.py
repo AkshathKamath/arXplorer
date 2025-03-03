@@ -22,7 +22,7 @@ async def search_papers(request: Request):
             raise HTTPException(status_code=400, detail="Missing 'title' in request body")
 
         query = f"all:{title.replace(' ', '+')}"
-        url = f"{ARXIV_API_URL}?search_query={query}&start=0&max_results=5"
+        url = f"{ARXIV_API_URL}?search_query={query}&start=0&max_results=10"
 
         async with httpx.AsyncClient() as client:
             response = await client.get(url)
@@ -37,9 +37,8 @@ async def search_papers(request: Request):
         for entry in root.findall("ns:entry", ns)[:5]:
             paper_title = entry.find("ns:title", ns).text.strip()
             link = entry.find("ns:id", ns).text.strip()
-            summary = entry.find("ns:summary", ns).text.strip()
             
-            papers.append({"title": paper_title, "link": link, "summary": summary})
+            papers.append({"title": paper_title, "link": link})
 
         return {"papers": papers}
 
