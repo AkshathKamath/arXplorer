@@ -37,6 +37,7 @@ async def search_papers(request: Request):
         for entry in root.findall("ns:entry", ns)[:5]:
             paper_title = entry.find("ns:title", ns).text.strip()
             link = entry.find("ns:id", ns).text.strip()
+            link = link.replace("abs", "pdf") + ".pdf"
             
             papers.append({"title": paper_title, "link": link})
 
