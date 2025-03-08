@@ -1,9 +1,9 @@
 import pinecone
-import json
 from langchain.embeddings.openai import OpenAIEmbeddings
+from config import PINECONE_API_KEY, PINECONE_ENVIRONMENT
 
-pinecone.init(api_key="pcsk_6PUmzH_58RKsC3EDHpGHL5nFX6dfNfRBZz9vQKzYKUfjrQSJcSU4m8CQxkZnjsKdqw6FEf", environment="us-east1-aws")
-
+# Initialize Pinecone
+pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
 index_name = "arxiv-papers"
 
 if index_name not in pinecone.list_indexes():
@@ -12,15 +12,9 @@ if index_name not in pinecone.list_indexes():
 index = pinecone.Index(index_name)
 embeddings = OpenAIEmbeddings()
 
-def store_papers():
-    """Store extracted papers in Pinecone."""
-    with open("papers.json", "r") as f:
-        papers = json.load(f)
+def store_paper_in_pinecone(paper_id, text, paper_url):
+    """Stores paper embeddings in Pinecone."""
+    embedding = embeddings.embed_query(text[:5000])  # Limit to avoid token constraints
+    index.upsert([(paper_id, embedding, {"text": text[:5000], "url": paper_url})])
 
-    for paper in papers:
-        embedding = embeddings.embed_query(paper["title"] + " " + paper["abstract"])
-        index.upsert([(paper["id"], embedding, {"title": paper["title"], "abstract": paper["abstract"]})])
-
-if __name__ == "__main__":
-    store_papers()
-    print("Papers stored in Pinecone!")
+    return {"message": "Paper stored successfully", "paper_id": paper_id}
