@@ -1,0 +1,6 @@
+python app.py
+redis-server
+
+curl -X POST "http://0.0.0.0:4000/search_papers/" -H "Content-Type: application/json" -d '{"title": "machine learning"}'
+
+curl -X POST "http://0.0.0.0:4000/extract_pdf_text/" -H "Content-Type: application/json" -d '{"url": "http://export.arxiv.org/pdf/2301.09753v1.pdf"}'

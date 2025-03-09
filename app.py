@@ -5,6 +5,10 @@ import json
 import xml.etree.ElementTree as ET
 import fitz 
 import io
+import redis
+
+# Initialize Redis client
+redis_client = redis.Redis(host="localhost", port=6379, db=0)
 
 app = FastAPI()
 
@@ -57,6 +61,7 @@ async def search_papers(request: Request):
 async def extract_pdf_text(request: Request):
     try:
         body = await request.json()
+        print("Request body:", body)  # Debug: Print the request body
         paper_url = body.get("url")
 
         if not paper_url:
@@ -66,21 +71,34 @@ async def extract_pdf_text(request: Request):
         if not paper_url.endswith(".pdf"):
             raise HTTPException(status_code=400, detail="Provided URL is not a PDF")
 
+        # Debug: Print the PDF URL
+        print("Downloading PDF from:", paper_url)
+
         # Download the PDF file
         async with httpx.AsyncClient() as client:
             response = await client.get(paper_url)
+            print("PDF download status code:", response.status_code)  # Debug: Print status code
 
         if response.status_code != 200:
             raise HTTPException(status_code=500, detail="Failed to fetch the PDF file")
 
+        # Debug: Print the first 100 bytes of the PDF
+        print("PDF content (first 100 bytes):", response.content[:100])
+
         # Extract text using PyMuPDF
         pdf_text = extract_text_from_pdf(response.content)
+
+        # Debug: Print the first 100 characters of the extracted text
+        print("Extracted text (first 100 characters):", pdf_text[:100])
+
+        # Push the extracted text to Redis
+        redis_client.set("extracted_text", pdf_text)
 
         return {"text": pdf_text}
 
     except Exception as e:
+        print("Error:", str(e))  # Debug: Print the exception
         raise HTTPException(status_code=500, detail=str(e))
-
 
 def extract_text_from_pdf(pdf_bytes):
     """Extract text from a PDF file using PyMuPDF."""

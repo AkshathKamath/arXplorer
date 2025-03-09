@@ -1,20 +1,54 @@
-import pinecone
-from langchain.embeddings.openai import OpenAIEmbeddings
-from config import PINECONE_API_KEY, PINECONE_ENVIRONMENT
+from pinecone import Pinecone
+from sentence_transformers import SentenceTransformer
+#from config import PINECONE_API_KEY, PINECONE_ENVIRONMENT
+import redis
+import hashlib
+
+# Initialize Redis client
+redis_client = redis.Redis(host="localhost", port=6379, db=0)
 
 # Initialize Pinecone
-pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_ENVIRONMENT)
-index_name = "arxiv-papers"
+pc = Pinecone(api_key="pcsk_6PUmzH_58RKsC3EDHpGHL5nFX6dfNfRBZz9vQKzYKUfjrQSJcSU4m8CQxkZnjsKdqw6FEf")
+index_name = "paper-summarizer"
 
-if index_name not in pinecone.list_indexes():
-    pinecone.create_index(index_name, dimension=1536, metric="cosine")
+index = pc.Index(index_name)
 
-index = pinecone.Index(index_name)
-embeddings = OpenAIEmbeddings()
+# Initialize Sentence Transformers model
+model = SentenceTransformer('all-MiniLM-L6-v2')
 
-def store_paper_in_pinecone(paper_id, text, paper_url):
-    """Stores paper embeddings in Pinecone."""
-    embedding = embeddings.embed_query(text[:5000])  # Limit to avoid token constraints
-    index.upsert([(paper_id, embedding, {"text": text[:5000], "url": paper_url})])
+# generate unique id for reserach paper
+def generate_id_from_text(text):
+    return hashlib.md5(text.encode()).hexdigest()
 
-    return {"message": "Paper stored successfully", "paper_id": paper_id}
+def process_text_to_embeddings(text):
+    embeddings = model.encode(text)
+    return embeddings
+
+
+# Upsert embeddings into Pinecone
+def store_embeddings_in_pinecone(paper_id, embeddings):
+    index.upsert([(paper_id, embeddings)])
+
+def main():
+    text = redis_client.get("extracted_text")
+    if not text:
+        print("No text found in Redis.")
+        return
+
+    text = text.decode("utf-8")
+
+    paper_id = generate_id_from_text(text)
+
+    # Example metadata (replace this with actual metadata from your FastAPI app)
+    # metadata = {
+    #     "title": "Example Paper Title",  # Replace with actual title
+    #     "url": "http://example.com/paper.pdf",  # Replace with actual URL
+    #     "text": text  # Optional: Store the full text
+    # }
+
+    embeddings = process_text_to_embeddings(text)
+    store_embeddings_in_pinecone(paper_id, embeddings)
+    print(f"Embeddings for paper {paper_id} stored in Pinecone with metadata.")
+
+if __name__ == "__main__":
+    main()

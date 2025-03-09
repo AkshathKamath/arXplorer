@@ -2,7 +2,7 @@ fastapi
 uvicorn
 httpx
 langchain
-openai
-pinecone-client
+pinecone
 pymupdf
 python-dotenv
+sentence_transformers
