@@ -5,6 +5,7 @@ import xml.etree.ElementTree as ET
 from pinecone import Pinecone
 from sentence_transformers import SentenceTransformer
 import hashlib
+from textwrap import wrap
 
 app = FastAPI()
 
@@ -16,11 +17,20 @@ model = SentenceTransformer('all-MiniLM-L6-v2')
 
 def generate_id_from_text(text):
     return hashlib.md5(text.encode()).hexdigest()
+
 def process_text_to_embeddings(text):
-    embeddings = model.encode(text)
+    chunks = wrap(text, width=512)  
+    embeddings = [model.encode(chunk) for chunk in chunks]
     return embeddings
-def store_embeddings_in_pinecone(paper_id, embeddings):
-    index.upsert([(paper_id, embeddings)])
+
+def store_embeddings_in_pinecone(paper_id, embeddings, chunks):
+    vectors = []
+    for i, embedding in enumerate(embeddings):
+        chunk_id = f"{paper_id}_{i}"  
+        metadata = {"text": chunks[i]}  
+        vectors.append((chunk_id, embedding, metadata))
+
+    index.upsert(vectors)  
 
 @app.get('/') 
 def home_route():
@@ -40,8 +50,11 @@ async def pinecone_upload(request: Request):
         print(text)
 
         paper_id = generate_id_from_text(text)
-        embeddings = process_text_to_embeddings(text)
-        store_embeddings_in_pinecone(paper_id, embeddings)
+        # embeddings = process_text_to_embeddings(text)
+        # store_embeddings_in_pinecone(paper_id, embeddings)
+        chunks = wrap(text, width=512)  # Split text into chunks
+        embeddings = process_text_to_embeddings(text)  # Encode chunks
+        store_embeddings_in_pinecone(paper_id, embeddings, chunks)  # Store properly
 
         return {"message": f"Embeddings for paper {paper_id} stored in Pinecone."}
 
