@@ -3,6 +3,5 @@ uvicorn
 httpx
 langchain
 pinecone
-pymupdf
 python-dotenv
 sentence_transformers
