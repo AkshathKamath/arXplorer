@@ -1,2 +1,4 @@
 **/arxivapi
 **/rag
+**/__pycache__
+**/summarizer
