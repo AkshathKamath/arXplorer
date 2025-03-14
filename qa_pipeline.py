@@ -1,36 +1,36 @@
-from langchain.vectorstores import Pinecone
-from langchain.chains import RetrievalQA
-from langchain.chat_models import ChatOpenAI
-from sentence_transformers import SentenceTransformer
-from pinecone import Pinecone as PineconeClient
-import os
+# from sentence_transformers import SentenceTransformer
+from pinecone import Pinecone
+from llama_index.core import VectorStoreIndex, ServiceContext, StorageContext
+from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+from llama_index.vector_stores.pinecone import PineconeVectorStore
+# from llama_index.llms.openai import OpenAI
+from llama_index.llms.mistralai import MistralAI
 
-embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
 
-pc = PineconeClient(api_key="pcsk_6PUmzH_58RKsC3EDHpGHL5nFX6dfNfRBZz9vQKzYKUfjrQSJcSU4m8CQxkZnjsKdqw6FEf") # Store API key in env variable
+pc = Pinecone(api_key="pcsk_6PUmzH_58RKsC3EDHpGHL5nFX6dfNfRBZz9vQKzYKUfjrQSJcSU4m8CQxkZnjsKdqw6FEf")
 index_name = "paper-summarizer"
 index = pc.Index(index_name)
 
-def embed_query(query):
-    return embedding_model.encode(query).tolist()
 
-vector_store = Pinecone(index, embed_query, "text")
+vector_store = PineconeVectorStore(pc.Index(index_name))
+storage_context = StorageContext.from_defaults(vector_store=vector_store)
+llm = MistralAI(model="mistral-7b", api_key = "OAaFT0jM8jGshHiF2jUste5tX61rTSOP")
 
-# retriever for fetching relevant documents
-retriever = vector_store.as_retriever(search_kwargs={"k": 5})  
 
-llm = ChatOpenAI(model_name="gpt-4", temperature=0)
-qa_chain = RetrievalQA.from_chain_type(llm, retriever=retriever, return_source_documents=True)
+embedding_model = HuggingFaceEmbedding(model_name="sentence-transformers/all-MiniLM-L6-v2")
+service_context = ServiceContext.from_defaults(llm=llm, embed_model=embedding_model)
 
+index = VectorStoreIndex.from_vector_store(vector_store, storage_context=storage_context)
+
+
+query_engine = index.as_query_engine(service_context=service_context, similarity_top_k=5)
+
+# Function to answer questions
 def answer_question(query):
-    response = qa_chain(query)
-    answer = response["result"]
-    sources = [doc.metadata["text"] for doc in response["source_documents"]]
-    
-    return {"answer": answer, "sources": sources}
+    response = query_engine.query(query)
+    return {"answer": response.response, "sources": response.source_nodes}
 
 
-# Example usage
 query = "What is RAG?"
 result = answer_question(query)
 print("Answer:", result["answer"])
