@@ -1,9 +1,7 @@
-# from sentence_transformers import SentenceTransformer
 from pinecone import Pinecone
 from llama_index.core import VectorStoreIndex, StorageContext
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.vector_stores.pinecone import PineconeVectorStore
-# from llama_index.llms.openai import OpenAI
 from llama_index.llms.mistralai import MistralAI
 from llama_index.core import Settings
 
@@ -27,17 +25,16 @@ query_engine = index.as_query_engine(llm=llm, similarity_top_k=5)
 
 def answer_question(query):
     response = query_engine.query(query)
-    return {"answer": response.response}
-    # return {"answer": response.response, "sources": response.source_nodes"}
+    return response
 
 
-if __name__ == "__main__":
-    print("Ask me anything! (type 'exit' to quit)\n")
-    while True:
-        query = input("Your question: ")
-        if query.lower() in ["exit", "quit"]:
-            print("Goodbye! 👋")
-            break
-        result = answer_question(query)
-        print("Answer:", result["answer"])
-        print("-" * 50)
+# if __name__ == "__main__":
+#     print("Ask me anything! (type 'exit' to quit)\n")
+#     while True:
+#         query = input("Your question: ")
+#         if query.lower() in ["exit", "quit"]:
+#             print("Goodbye! 👋")
+#             break
+#         result = answer_question(query)
+#         print("Answer:", result["answer"])
+#         print("-" * 50)

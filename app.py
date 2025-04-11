@@ -6,6 +6,7 @@ from pinecone import Pinecone
 from sentence_transformers import SentenceTransformer
 import hashlib
 from textwrap import wrap
+from qa_pipeline import answer_question
 
 app = FastAPI()
 
@@ -61,6 +62,21 @@ async def pinecone_upload(request: Request):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.post('/query_pinecone/')
+async def pinecone_query(request: Request):
+    try:
+        body = await request.json()
+        query_text = body.get("query", "")
+        if not query_text:
+            raise HTTPException(status_code=400, detail="Query text is required")
+
+        answer = answer_question(query_text)
+        if not answer:
+            raise HTTPException(status_code=404, detail="No answer found")
+        return {"answer": answer.response}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == '__main__':
 	uvicorn.run(app, host='0.0.0.0', port=4000)
