@@ -1,0 +1,31 @@
+.App {
+  /* text-align: center; */
+  /* background-color: #36454F;
+    color: #ffffff; */
+}
+
+body {
+  background-color: #f5f7fa;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+
+.features{
+  background-color: #f5f7fa;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.form{
+    background-color: #36454F !important;
+    color: #ffffff !important;
+    border-color: #ffffff !important;
+    /* width: 70% !important; */
+  }
+
+  .logo{
+    height: 40px;
+    width: auto;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  

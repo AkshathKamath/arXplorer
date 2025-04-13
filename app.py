@@ -8,6 +8,20 @@ import io
 
 app = FastAPI()
 
+<<<<<<< HEAD
+=======
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+>>>>>>> dcf9d2d5 (React frontenf)
 ARXIV_API_URL = "http://export.arxiv.org/api/query"
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36"

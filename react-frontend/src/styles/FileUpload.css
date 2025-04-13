@@ -1,0 +1,16 @@
+.file-upload-box {
+    margin-top: 50px;
+}
+
+.dropzone {
+    border: 2px dashed #131313;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.dropzone-active {
+    border-color: #ffffff;
+    background-color: #4f5150;
+}
