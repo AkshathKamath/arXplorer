@@ -1,2 +1,6 @@
 **/arxivapi
 **/rag
+**/node_modules
+**/summarizer
+**/malhar
+**__pycache__

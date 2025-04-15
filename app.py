@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import httpx
 import json
@@ -7,6 +8,14 @@ import fitz
 import io
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],          # ✅ allow all origins
+    allow_credentials=False,      # ✅ required when using "*"
+    allow_methods=["*"],          # ✅ allow POST, GET, etc.
+    allow_headers=["*"],          # ✅ allow Content-Type: application/json
+)
 
 ARXIV_API_URL = "http://export.arxiv.org/api/query"
 HEADERS = {
