@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import httpx
 import xml.etree.ElementTree as ET
@@ -9,6 +10,14 @@ from textwrap import wrap
 from qa_pipeline import answer_question
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],          # ✅ allow all origins
+    allow_credentials=False,      # ✅ required when using "*"
+    allow_methods=["*"],          # ✅ allow POST, GET, etc.
+    allow_headers=["*"],          # ✅ allow Content-Type: application/json
+)
 
 pc = Pinecone(api_key="pcsk_6PUmzH_58RKsC3EDHpGHL5nFX6dfNfRBZz9vQKzYKUfjrQSJcSU4m8CQxkZnjsKdqw6FEf")
 index_name = "paper-summarizer"
