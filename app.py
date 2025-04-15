@@ -57,7 +57,7 @@ async def pinecone_upload(request: Request):
             raise HTTPException(status_code=500, detail="Failed to extract text from PDF")
 
         text = response.json().get("text", "")
-        print(text)
+        # print(text)
 
         paper_id = generate_id_from_text(text)
         # embeddings = process_text_to_embeddings(text)
