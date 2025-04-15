@@ -43,7 +43,7 @@ const HomePage = () => {
       <NavbarComponent />
       <div className="mx-4 my-4">
         <Container align="center">
-          <h3>arXiv: RAG powered QA for arXiv research papers</h3>
+          <h3>arXplorer: RAG powered QA for arXiv research papers</h3>
         </Container>
         <div className="my-4">
           <FeaturesComponent />
