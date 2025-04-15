@@ -7,12 +7,13 @@ import NavbarComponent from "../components/Navbar";
 
 const ViewPage = () => {
   const query = new URLSearchParams(useLocation().search);
-  const title = query.get("title");
+  // const title = query.get("title");
   const link = query.get("link");
   const [loading, setLoading] = useState(false);
   const [summary, setSummary] = useState("");
 
   useEffect(() => {
+    uploadPaper();
     fetchSummary();
   }, []);
 
@@ -38,15 +39,16 @@ const ViewPage = () => {
 
   const uploadPaper = async () => {
     try {
-      const response = await axios.post("", {
-        url: link,
-      });
-
-      setSummary(response.data.summary || "");
+      const response = await axios.post(
+        "https://arxplorer-production-376d.up.railway.app/store_to_pinecone/",
+        {
+          url: link,
+        }
+      );
+      console.log(response.data);
     } catch (err) {
       console.error(err);
     } finally {
-      setLoading(false);
     }
   };
 
