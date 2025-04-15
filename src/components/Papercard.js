@@ -8,6 +8,13 @@ const PaperCard = ({ title, link }) => (
       <Card.Link href={link} target="_blank" rel="noopener noreferrer">
         Download PDF
       </Card.Link>
+      <Card.Link
+        href={`/view?title=${encodeURIComponent(
+          title
+        )}&link=${encodeURIComponent(link)}`}
+      >
+        Explore
+      </Card.Link>
     </Card.Body>
   </Card>
 );
