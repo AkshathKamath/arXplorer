@@ -9,13 +9,14 @@ arXplorer lets you query research papers using natural language. It pulls papers
 ## Project structure
 
 arXplorer/
-├── arXplorer-arxivapi/ # arXiv API integration
-├── arXplorer-frontend/ # Web interface
-├── arXplorer-rag-branch/ # Core RAG implementation
-├── arXplorer-summarizer/ # Paper summarization module
-├── .gitignore
-├── LICENSE
-└── README.md
+
+- arXplorer-arxivapi/ # arXiv API integration
+- arXplorer-frontend/ # Web interface
+- arXplorer-rag-branch/ # Core RAG implementation
+- arXplorer-summarizer/ # Paper summarization module
+- .gitignore
+- LICENSE
+- README.md
 
 ## Tech stack
 
